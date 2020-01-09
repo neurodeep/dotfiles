@@ -1,16 +1,9 @@
 #!/bin/bash
 
-### TODO: source /path/to/git/.bashrc
-
 [[ -z $PS1 ]] && return
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
-
-# Hack for Sublime Text Terminal View
-if [[ $TERM == 'linux' ]]; then
-  cd
-fi
 
 # Get working dir
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -18,11 +11,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Source global definitions
 if [ -f /etc/bashrc ]; then
   . /etc/bashrc
-fi
-
-# Source custom definitions
-if [[ $SSH_CONNECTION && ! $HOME == $DIR && -r $HOME/.bashrc ]]; then
-  . $HOME/.bashrc
 fi
 
 # Prompt
@@ -53,8 +41,8 @@ if [[ $PATH != *$PREFIX/bin* && -d "$PREFIX/bin" ]]; then
   export PATH="$PREFIX/bin:$PATH"
 fi
 
-# Force keyring
-if [[ -z $SSH_CONNECTION ]] && type gnome-keyring-daemon >/dev/null 2>&1; then
+# Force Gnome keyring
+if type gnome-keyring-daemon >/dev/null 2>&1; then
   eval $(gnome-keyring-daemon --start)
 fi
 

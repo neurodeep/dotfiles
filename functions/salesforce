@@ -1,0 +1,163 @@
+#!/bin/bash
+scratch() {
+    BRANCH="${1:-$(date +%Y-%m-%d)}"
+    CONFIG="./config/project-scratch-def.json"
+    PROJECT=$(basename $(pwd))
+
+    if [ "$PROJECT" = "core" ]; then
+        SCRIPTS="../americium/core/post_install_config.apex ../americium/core/study_browser_data.apex"
+        SET="Case_Intake_Admin_User"
+        CONFIG="./config/Intake-scratch-def.json"
+    fi
+
+    if [ "$PROJECT" = "intake" ]; then
+        PACKAGE_ID="04t1U000007Y1GG"
+        SET="Case_Intake_Admin_User"
+        CONFIG="./config/Intake-scratch-def.json"
+    fi
+
+    if [ "$PROJECT" = "submission" ]; then
+        # PACKAGE_ID="04t1U000007Y15v"
+        SET="Case_Submission_Manager"
+    fi
+
+    if [ "$PROJECT" = "reporting" ]; then
+        # PACKAGE_ID="04t1U000007Y15v"
+        SET="AR_Admin"
+    fi
+
+    echo "Creating scratch org for development..."
+    sfdx force:org:create -f $CONFIG -a "$BRANCH" -d 30 -s orgName="$BRANCH" adminEmail="$(git config --get user.email)"
+
+    if [ ! -z $PACKAGE_ID ]; then
+        echo "Installing package..."
+        sfdx force:package:install --package $PACKAGE_ID --wait 20 --publishwait 20 --securitytype=AllUsers --noprompt
+    fi
+
+    echo "Pushing source code..."
+    sfdx force:source:push
+
+    if [ ! -z $SET ]; then
+        echo "Assigning permissions..."
+        sfdx force:user:permset:assign --permsetname "$SET"
+    fi
+
+    # TODO: merge these two
+    if [ ! -z $SCRIPTS ]; then
+        echo "Running scripts..."
+        for FILE in $SCRIPTS; do
+            sfdx force:apex:execute --apexcodefile "$FILE" | head -n 2
+        done
+    fi
+
+    if [ ! -z $SCRIPT ]; then
+        echo "Running script..."
+        sfdx force:apex:execute --apexcodefile "$SCRIPT" | head -n 2
+    fi
+
+    sfdx force:org:list
+    sfdx force:org:open
+
+    echo "Ready!"
+}
+
+sfp() {
+    if [ ! -z "$1" ]; then
+        echo "Pushing changes to "$1"..."
+        sfdx force:source:push -u "$1"
+    else
+        echo "Pushing changes..."
+        sfdx force:source:push
+    fi
+}
+
+sfu() {
+    if [ ! -z "$1" ]; then
+        echo "Pulling changes from "$1"..."
+        sfdx force:source:pull -u "$1"
+    else
+        echo "Pulling changes..."
+        sfdx force:source:pull
+    fi
+}
+
+sfl() {
+    echo "Listing orgs..."
+    sfdx force:org:list --all
+}
+
+sfo() {
+    if [ ! -z "$1" ]; then
+        echo "Opening $1 org..."
+        sfdx force:org:open -u "$1"
+    else
+        echo "Opening default org..."
+        sfdx force:org:open
+    fi
+}
+
+sfd() {
+    for ORG in $@; do
+        sfdx force:org:delete -p -u "$ORG"
+    done
+}
+
+# sfda() {
+#   LIST=$(sfl)
+#   IFS=' ' read -r -a array <<< "$string"
+
+#   COUNT=0
+#   MISSING=()
+
+#   for l in $LIST; do
+#     echo $l;
+#     if [ "$PROJECT" = "submission" ]; then
+#       # PACKAGE_ID="04t1U000007Y15v"
+#       SET="Case_Submission_Manager"
+#     fi
+#   done
+
+#   for ORG in $@; do
+#     sfdx force:org:delete -p -u "$ORG"
+#   done;
+# }
+
+sft() {
+    echo "Running tests..."
+    sfdx force:apex:test:run -w 60 -r human -c
+}
+
+# TODO: cleanup deleted orgs
+
+sfe() {
+    sfdx force:apex:execute -f $1
+}
+
+sflimits() {
+    ARGS=$@
+    SOURCE="-"
+    GREP=1
+
+    for V in $@; do
+        echo $V
+    done
+
+    return
+
+    if echo "$ARGS" | grep -q "$SOURCE"; then
+        GREP=0
+    fi
+
+    REST="${ARGS/$SOURCE/}"
+
+    echo GREP $GREP
+    echo HUB $HUB
+    echo REST $REST
+
+    if [ $GREP ]; then
+        echo "sfdx force:limits:api:display -u $HUB | grep -i 'maximum\|scratch'"
+    else
+        echo "sfdx force:limits:api:display -u $HUB"
+    fi
+
+}

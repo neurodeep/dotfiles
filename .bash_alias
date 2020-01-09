@@ -1,6 +1,4 @@
 #!/bin/bash
-alias gitstat="git ls-files | while read f; do git blame -w -M -C -C --line-porcelain $f | grep -I '^author '; done | sort -f | uniq -ic | sort -n"
-
 alias ssh="ssh -v $@"
 alias ls="ls -F --color=auto $@"
 alias ll="ls -hlF --color=auto $@"
