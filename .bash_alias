@@ -1,0 +1,13 @@
+#!/bin/bash
+alias gitstat="git ls-files | while read f; do git blame -w -M -C -C --line-porcelain $f | grep -I '^author '; done | sort -f | uniq -ic | sort -n"
+
+alias ssh="ssh -v $@"
+alias ls="ls -F --color=auto $@"
+alias ll="ls -hlF --color=auto $@"
+alias la="ls -hlAF --color=auto $@"
+alias grep="grep --color=auto $@"
+alias df="df -h $@"
+alias start="launch startx"
+alias rl="readlink -f $@"
+alias chmodw="chmod a+w $@"
+alias vim="vim -u $DIR/.vimrc $@"

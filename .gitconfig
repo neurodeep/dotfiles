@@ -1,0 +1,30 @@
+[winUpdater]
+	recentlySeenVersion = 2.24.1.windows.2
+[user]
+	name = Nick Morozov
+	email = mykola.morozov@avenga.com
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[core]
+	autocrlf = false
+[alias]
+	pr = pull --rebase origin master
+    p = push
+    u = pull
+    co = checkout
+    ci = commit
+    st = status
+    br = branch
+    diffc = diff --cached
+	unstage = reset HEAD --
+	hardreset = reset --hard HEAD
+	undo = checkout --
+	gc = gc --prune
+    log = log --graph --oneline --decorate
+[credential]
+	helper = manager
+[gui]
+	recentrepo = C:/Users/mmorozov/Work/core

@@ -1,0 +1,155 @@
+#!/bin/bash
+if [[ -r $HOME/Work/americium/general/scratch.bash ]]; then
+  . $HOME/Work/americium/general/scratch.bash
+fi
+
+sfp() {
+  if [ ! -z "$1" ]; then
+    echo "Pushing changes to "$1"..."
+    sfdx force:source:push -u "$1"
+  else
+    echo "Pushing changes..."
+    sfdx force:source:push
+  fi
+}
+
+sfu() {
+  if [ ! -z "$1" ]; then
+    echo "Pulling changes from "$1"..."
+    sfdx force:source:pull -u "$1"
+  else
+    echo "Pulling changes..."
+    sfdx force:source:pull
+  fi
+}
+
+sfl() {
+  echo "Listing orgs..."
+  sfdx force:org:list --all
+}
+
+sfo() {
+  if [ ! -z "$1" ]; then
+    echo "Opening $1 org..."
+    sfdx force:org:open -u "$1"
+  else
+    echo "Opening default org..."
+    sfdx force:org:open
+  fi
+}
+
+sfd() {
+  for ORG in $@; do
+    sfdx force:org:delete -p -u "$ORG"
+  done;
+}
+
+# sfda() {
+#   LIST=$(sfl)
+#   IFS=' ' read -r -a array <<< "$string"
+
+#   COUNT=0
+#   MISSING=()
+
+#   for l in $LIST; do
+#     echo $l;
+#     if [ "$PROJECT" = "submission" ]; then
+#       # PACKAGE_ID="04t1U000007Y15v"
+#       SET="Case_Submission_Manager"
+#     fi
+#   done
+
+#   for ORG in $@; do
+#     sfdx force:org:delete -p -u "$ORG"
+#   done;
+# }
+
+sft() {
+  echo "Running tests..."
+  sfdx force:apex:test:run -w 60 -r human -c
+}
+
+# TODO: cleanup deleted orgs
+
+sfe() {
+  sfdx force:apex:execute -f $1
+}
+
+sflimits() {
+  ARGS=$@
+  SOURCE="-"
+  GREP=1
+
+  for V in $@; do
+    echo $V
+  done
+
+  return
+
+  if echo "$ARGS" | grep -q "$SOURCE"; then
+    GREP=0
+  fi
+
+  REST="${ARGS/$SOURCE/}"
+
+  echo GREP $GREP
+  echo HUB $HUB
+  echo REST $REST
+
+  if [ $GREP ]; then
+    echo "sfdx force:limits:api:display -u $HUB | grep -i 'maximum\|scratch'"
+  else
+    echo "sfdx force:limits:api:display -u $HUB"
+  fi
+
+}
+
+poll() {
+  while [ true ]; do
+    "$@"
+    sleep 5
+  done
+}
+
+dice() {
+    DICE=(${@:-$(seq 6)})
+    LENGTH=${#DICE[@]}
+    SEED=$((RANDOM % LENGTH))
+    echo "${DICE[${SEED}]}"
+}
+
+d20() {
+    dice $(seq 20)
+}
+
+coin() {
+  HEADS="${1:-Heads}"
+  TAILS="${2:-Tails}"
+  dice $HEADS $TAILS
+}
+
+extract() {
+  if [ -f "$1" ]; then
+    case "$1" in
+    *.tar.bz2) tar xjf "$1" ;;
+    *.tar.gz) tar xzf "$1" ;;
+    *.bz2) bunzip2 "$1" ;;
+    *.rar) rar x "$1" ;;
+    *.gz) gunzip "$1" ;;
+    *.tar) tar xf "$1" ;;
+    *.tbz2) tar xjf "$1" ;;
+    *.tgz) tar xzf "$1" ;;
+    *.zip) unzip "$1" ;;
+    *.Z) uncompress "$1" ;;
+    *.rpm) 7z e "$1" -otmp && 7z x tmp/* -o* && rm -r tmp ;;
+    *.deb) dpkg -X "$1" "${1%".deb"}" ;;
+    *) echo "'${1}' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'${1}' is not a valid file"
+  fi
+}
+
+grab() {
+  sudo chown -R "${USER}" "${1:-.}"
+}
