@@ -8,11 +8,11 @@ fi
 # Util stuff
 
 gitstat() {
-  git ls-files | \
+  git ls-files |
     while read f; do
       git blame -w -M -C -C --line-porcelain $f | grep -I '^author '
-    done | \
-      sort -f | uniq -ic | sort -n
+    done |
+    sort -f | uniq -ic | sort -n
 }
 
 poll() {
@@ -23,14 +23,14 @@ poll() {
 }
 
 dice() {
-    DICE=(${@:-$(seq 6)})
-    LENGTH=${#DICE[@]}
-    SEED=$((RANDOM % LENGTH))
-    echo "${DICE[${SEED}]}"
+  DICE=(${@:-$(seq 6)})
+  LENGTH=${#DICE[@]}
+  SEED=$((RANDOM % LENGTH))
+  echo "${DICE[${SEED}]}"
 }
 
 d20() {
-    dice $(seq 20)
+  dice $(seq 20)
 }
 
 coin() {

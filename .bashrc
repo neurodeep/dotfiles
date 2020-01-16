@@ -6,7 +6,7 @@
 [[ $- != *i* ]] && return
 
 # Get working dir
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then

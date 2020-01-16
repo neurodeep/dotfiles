@@ -4,25 +4,26 @@ scratch() {
     CONFIG="./config/project-scratch-def.json"
     PROJECT=$(basename $(pwd))
 
+    PACKAGE_ID="04t1U000007Y1GG"
+
     if [ "$PROJECT" = "core" ]; then
+        unset PACKAGE_ID
         SCRIPTS="../americium/core/post_install_config.apex ../americium/core/study_browser_data.apex"
         SET="Case_Intake_Admin_User"
-        CONFIG="./config/Intake-scratch-def.json"
     fi
 
     if [ "$PROJECT" = "intake" ]; then
-        PACKAGE_ID="04t1U000007Y1GG"
         SET="Case_Intake_Admin_User"
         CONFIG="./config/Intake-scratch-def.json"
     fi
 
     if [ "$PROJECT" = "submission" ]; then
-        # PACKAGE_ID="04t1U000007Y15v"
+        unset PACKAGE_ID
+        SCRIPTS="../americium/submission/data_import.apex"
         SET="Case_Submission_Manager"
     fi
 
     if [ "$PROJECT" = "reporting" ]; then
-        # PACKAGE_ID="04t1U000007Y15v"
         SET="AR_Admin"
     fi
 
@@ -48,11 +49,6 @@ scratch() {
         for FILE in $SCRIPTS; do
             sfdx force:apex:execute --apexcodefile "$FILE" | head -n 2
         done
-    fi
-
-    if [ ! -z $SCRIPT ]; then
-        echo "Running script..."
-        sfdx force:apex:execute --apexcodefile "$SCRIPT" | head -n 2
     fi
 
     sfdx force:org:list
