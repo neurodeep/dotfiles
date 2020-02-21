@@ -98,26 +98,6 @@ sfd() {
     done
 }
 
-# sfda() {
-#   LIST=$(sfl)
-#   IFS=' ' read -r -a array <<< "$string"
-
-#   COUNT=0
-#   MISSING=()
-
-#   for l in $LIST; do
-#     echo $l;
-#     if [ "$PROJECT" = "submission" ]; then
-#       # PACKAGE_ID="04t1U000007Y15v"
-#       SET="Case_Submission_Manager"
-#     fi
-#   done
-
-#   for ORG in $@; do
-#     sfdx force:org:delete -p -u "$ORG"
-#   done;
-# }
-
 sft() {
     echo "Running tests..."
     sfdx force:apex:test:run -w 60 -r human -c
@@ -130,30 +110,5 @@ sfe() {
 }
 
 sflimits() {
-    ARGS=$@
-    SOURCE="-"
-    GREP=1
-
-    for V in $@; do
-        echo $V
-    done
-
-    return
-
-    if echo "$ARGS" | grep -q "$SOURCE"; then
-        GREP=0
-    fi
-
-    REST="${ARGS/$SOURCE/}"
-
-    echo GREP $GREP
-    echo HUB $HUB
-    echo REST $REST
-
-    if [ $GREP ]; then
-        echo "sfdx force:limits:api:display -u $HUB | grep -i 'maximum\|scratch'"
-    else
-        echo "sfdx force:limits:api:display -u $HUB"
-    fi
-
+    sfdx force:limits:api:display -u $1 | grep -i 'maximum\|scratch'"
 }
